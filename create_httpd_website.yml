@@ -1,0 +1,18 @@
+---
+- name: Deploy website to EC2 instance
+  hosts: httpd
+  become: yes
+
+  tasks:
+    - name: Copy index.html file
+      copy:
+        src: index.html
+        dest: /var/www/html/index.html
+        owner: apache
+        group: apache
+        mode: '0644'
+
+    - name: Restart httpd service
+      service:
+        name: httpd
+        state: restarted

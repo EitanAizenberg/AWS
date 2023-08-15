@@ -1,0 +1,41 @@
+---
+- name: Install and configure httpd on EC2 instances
+  hosts: servers
+  become: yes
+
+  tasks:
+    - name: Update apt cache (for Ubuntu/Debian) or yum cache (for CentOS/RHEL)
+      apt:
+        update_cache: yes
+      become: yes
+      when: ansible_os_family == 'Debian'
+
+    - name: Install httpd package
+      package:
+        name: httpd
+        state: present
+      become: yes
+
+    - name: Start httpd service
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+      become: yes
+
+    - name: Open port 80 in the firewall
+      firewalld:
+        port: 80/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
+      become: yes
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+
+    - name: Open port 80 in the firewall
+      ufw:
+        rule: allow
+        port: '80'
+        state: enabled
+      become: yes
+      when: ansible_distribution == 'Ubuntu'

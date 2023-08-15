@@ -1,0 +1,46 @@
+---
+- name: Deploy Flask app to EC2 instances
+  hosts: flask
+  become: yes
+
+  vars:
+    git_repo_url: "https://github.com/EitanAizenberg/flaskproject.git"
+    app_directory: /home/ec2-user/flask-app
+    app_service_name: myflaskapp
+
+  tasks:
+    - name: Install Git
+      package:
+        name: git
+        state: present
+
+    - name: Clone Git repository
+      git:
+        repo: "{{ git_repo_url }}"
+        dest: "{{ app_directory }}"
+
+    - name: Install Python and pip
+      package:
+        name: python3-pip
+        state: present
+
+    - name: Install Flask and dependencies
+      pip:
+        name:
+          - flask
+          - flask-wtf
+          - gunicorn
+        state: present
+
+    - name: Enable and start the Flask app service
+      service:
+        name: "{{ app_service_name }}"
+        state: started
+        enabled: yes
+        daemon_reload: yes
+
+   # - name: Run Flask app in the background
+  #    command: nohup gunicorn -w 4 -b 0.0.0.0:5000 app:app > /dev/null 2>&1 &
+ #     args:
+#        chdir: "{{ app_directory }}"
+

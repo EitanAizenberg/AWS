@@ -1,0 +1,12 @@
+[Unit]
+Description=My Flask App
+After=network.target
+
+[Service]
+User=ec2-user
+WorkingDirectory={{ app_directory }}
+ExecStart=/usr/local/bin/gunicorn -w 4 -b 0.0.0.0:5000 app:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
